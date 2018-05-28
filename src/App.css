@@ -1,5 +1,11 @@
 .App {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
   text-align: center;
+  background-image: url('https://www.publicdomainpictures.net/pictures/20000/velka/green-leaf-pattern.jpg');
+  background-size: cover;
+  height: 100vh
 }
 
 .App-logo {

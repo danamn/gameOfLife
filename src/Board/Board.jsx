@@ -91,15 +91,16 @@ class Board extends Component {
 
   evolveCells = () => {
     clearTimeout(this.growthTimeout);
-    //  let cellsGrid = _.cloneDeep(this.state.cellsGrid);
-
     let boardIsEmpty = true;
 
     let cellsGrid = this.createGrid(false, true);
 
-    this.setState({ cellsGrid: cellsGrid, generation: this.state.generation + 1 }, () => {
-      this.growthTimeout = setTimeout(this.evolveCells, 10);
-    });
+    this.setState({ cellsGrid: cellsGrid, generation: this.state.generation + 1 });
+    this.growthTimeout = setTimeout(this.evolveCells, 10);
+
+    // this.setState({ cellsGrid: cellsGrid, generation: this.state.generation + 1 }, () => {
+    //   this.growthTimeout = setTimeout(this.evolveCells, 10);
+    // });
 
     // if (boardIsEmpty) {
     //   this.stopEvolution();
@@ -110,46 +111,33 @@ class Board extends Component {
     const aliveNeighborsCount = this.getCountOfAliveNeighbors(i, j);
 
     if (aliveNeighborsCount === 2) return this.state.cellsGrid[i][j];
-    if (aliveNeighborsCount === 3) return true; 
+    if (aliveNeighborsCount === 3) return true;
 
     return false;
-
-    // const isAlive = this.state.cellsGrid[i][j];
-    // if (isAlive) {
-    //   if (aliveNeighborsCount < 2 || aliveNeighborsCount > 3) {
-    //     return false;
-    //   }
-    //   return true;
-    // } else {
-    //   if (aliveNeighborsCount === 3) {
-    //     return true;
-    //   }
-    //   return false;
-    // }
   };
 
   getCountOfAliveNeighbors = (i, j) => {
     const { height, width } = this.props;
-    const above = i - 1 >= 0 ? i - 1 : height - 1;
-    const below = i + 1 <= height - 1 ? i + 1 : 0;
-    const left = j - 1 >= 0 ? j - 1 : width - 1;
-    const right = j + 1 <= width - 1 ? j + 1 : 0;
-    const coordinates = [
-      { x: above, y: left },
-      { x: above, y: j },
-      { x: above, y: right },
-      { x: i, y: left },
-      { x: i, y: right },
-      { x: below, y: left },
-      { x: below, y: j },
-      { x: below, y: right }
-    ];
+    const surroundingCoords = {
+      n: i - 1 >= 0 ? i - 1 : height - 1,
+      s: i + 1 <= height - 1 ? i + 1 : 0,
+      w: j - 1 >= 0 ? j - 1 : width - 1,
+      e: j + 1 <= width - 1 ? j + 1 : 0,
+      i: i,
+      j: j
+    };
 
+    const neighborsPosition = ['nw', 'nj', 'ne', 'ie', 'iw', 'sw', 'sj', 'se'];
     let aliveCount = 0;
-    _.forEach(coordinates, el => {
-      if (this.state.cellsGrid[el.x][el.y]) {
+
+    neighborsPosition.forEach((np, i) => {
+      let coordinates = np.split('');
+      const x = surroundingCoords[coordinates[0]];
+      const y = surroundingCoords[coordinates[1]];
+
+      if (this.state.cellsGrid[x][y]) {
         aliveCount++;
-        if (aliveCount > 3) {
+        if (aliveCount > 3 || (i > 6 && aliveCount === 0)) {
           return aliveCount;
         }
       }
@@ -157,11 +145,11 @@ class Board extends Component {
     return aliveCount;
   };
 
-  handleCellClick(i, j) {
+  handleCellClick = (i, j) => {
     const cellsGrid = _.cloneDeep(this.state.cellsGrid);
     cellsGrid[i][j] = !this.state.cellsGrid[i][j];
     this.setState({ cellsGrid: cellsGrid });
-  }
+  };
 
   stopEvolution = () => {
     clearInterval(this.growthInterval);
@@ -177,18 +165,32 @@ class Board extends Component {
   render() {
     const boardStyle = css({
       position: 'relative',
-      display: 'block',
-      margin: '15px auto',
-      padding: '10px',
-      fontFamily: 'Roboto',
-      background: '#476752',
+      display: 'table',
+      margin: '50px auto 10px',
+      textAlign: 'center',
+      padding: '3px 20px 20px',
+      background: '#356155',
       boxShadow: ` 
       0 0 2px 2px rgb(180, 255, 193), 0 0 0 6px rgba(46, 76, 78, 0.9), 0 0 0 8px rgba(255, 255, 255, 1)
-
     `
+    });
+    const generationStyle = css({
+      fontFamily: 'Architects Daughter, sans-serif',
+      fontSize: '20px',
+      display: 'block',
+      letterSpacing: '0.9px',
+      color: '#fff',
+      paddingTop: '5px',
+      paddingBottom: '5px',
+      '& span': {
+        minWidth: '40px',
+        display: 'inline-block',
+        textAlign: 'left'
+      }
     });
 
     const rowStyle = css({
+      //  display: 'table-row',
       display: 'block',
       height: '12px'
     });
@@ -216,8 +218,10 @@ class Board extends Component {
 
     return (
       <div>
-        Generation: {this.state.generation}
         <div {...boardStyle}>
+          <div {...generationStyle}>
+            Generations: <span> {this.state.generation}</span>
+          </div>
           {this.state.cellsGrid.length > 0
             ? _.range(this.props.height).map((row, i) => (
                 <div key={i} {...rowStyle}>
