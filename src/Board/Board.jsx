@@ -9,16 +9,16 @@ class Board extends Component {
     this.state = {
       generation: 0,
       cellsGrid: [],
-      showDeadModal: false,
+      showDeadModal: false
     };
   }
 
   componentDidMount() {
-    this.createGrid(true);
+    this.makeNewGrid(true);
   }
 
   componentWillUnmount() {
-    clearInterval(this.growthInterval);
+    clearTimeout(this.growthTimeout);
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -27,7 +27,7 @@ class Board extends Component {
     }
 
     if (prevProps.speed !== this.props.speed) {
-      clearInterval(this.growthInterval);
+      clearTimeout(this.growthTimeout);
       if (this.props.isOn) {
         this.startEvolving();
       }
@@ -35,10 +35,10 @@ class Board extends Component {
 
     if (this.props.isOn !== prevProps.isOn) {
       if (this.props.isOn) {
-        this.setState({showDeadModal: false})
+        this.setState({ showDeadModal: false });
         this.startEvolving();
       } else {
-        clearInterval(this.growthInterval);
+        clearTimeout(this.growthTimeout);
       }
     }
   }
@@ -48,22 +48,23 @@ class Board extends Component {
       generation: 0,
       showDeadModal: false
     });
-    clearInterval(this.growthInterval);
-    this.createGrid(isRandom);
+    clearTimeout(this.growthTimeout);
+    const cellsGrid = this.createGrid(isRandom, false);
+    this.setState({ cellsGrid: cellsGrid });
   };
 
-  createGrid = isRandom => {
+  createGrid = (isRandom, isOn) => {
     const { width, height } = this.props;
     let cellsGrid = [];
-    _.forEach(_.range(height), row => {
+    _.forEach(_.range(height), (row, i) => {
       let gridRow = [];
-      _.forEach(_.range(width), (cell, i) => {
-        gridRow[i] = isRandom ? this.randomAlive() : false;
+      _.forEach(_.range(width), (cell, j) => {
+        gridRow[j] = isRandom ? this.randomAlive() : isOn ? this.calculateIfCellAlive(i, j) : false;
       });
       cellsGrid.push(gridRow);
     });
 
-    this.setState({ cellsGrid: cellsGrid });
+    return cellsGrid;
   };
 
   randomAlive() {
@@ -76,54 +77,55 @@ class Board extends Component {
         case 0:
           return 1200;
         case 1:
-          return 900;
+          return 800;
         case 2:
-          return 400;
+          return 300;
         default:
           return 1000;
       }
     };
 
-    this.growthInterval = setInterval(() => {
-      this.setState(prevState => {
-        return { generation: prevState.generation + 1 };
-      }, this.evolveCells());
-    }, getSpeed());
+    clearTimeout(this.growthTimeout);
+    this.evolveCells();
   };
 
   evolveCells = () => {
-    let cellsGrid = _.cloneDeep(this.state.cellsGrid);
+    clearTimeout(this.growthTimeout);
+    //  let cellsGrid = _.cloneDeep(this.state.cellsGrid);
 
     let boardIsEmpty = true;
 
-    _.forEach(cellsGrid, (row, i) => {
-      _.forEach(row, (cell, j) => {
-        const isCellAlive = this.calculateIfCellAlive(i, j);
-        cellsGrid[i][j] = isCellAlive;
-        if (isCellAlive) boardIsEmpty = false;
-      });
+    let cellsGrid = this.createGrid(false, true);
+
+    this.setState({ cellsGrid: cellsGrid, generation: this.state.generation + 1 }, () => {
+      this.growthTimeout = setTimeout(this.evolveCells, 10);
     });
 
-    this.setState({ cellsGrid: cellsGrid });
-    if (boardIsEmpty) {
-      this.stopEvolution();
-    }
+    // if (boardIsEmpty) {
+    //   this.stopEvolution();
+    // }
   };
 
   calculateIfCellAlive = (i, j) => {
     const aliveNeighborsCount = this.getCountOfAliveNeighbors(i, j);
-    const isAlive = this.state.cellsGrid[i][j];
-    if (isAlive) {
-      if (aliveNeighborsCount < 2 || aliveNeighborsCount > 3) {
-        return false;
-      }
-      return true;
-    } else {
-      if (aliveNeighborsCount === 3) {
-        return true;
-      }
-      return false;
-    }
+
+    if (aliveNeighborsCount === 2) return this.state.cellsGrid[i][j];
+    if (aliveNeighborsCount === 3) return true; 
+
+    return false;
+
+    // const isAlive = this.state.cellsGrid[i][j];
+    // if (isAlive) {
+    //   if (aliveNeighborsCount < 2 || aliveNeighborsCount > 3) {
+    //     return false;
+    //   }
+    //   return true;
+    // } else {
+    //   if (aliveNeighborsCount === 3) {
+    //     return true;
+    //   }
+    //   return false;
+    // }
   };
 
   getCountOfAliveNeighbors = (i, j) => {
@@ -147,6 +149,9 @@ class Board extends Component {
     _.forEach(coordinates, el => {
       if (this.state.cellsGrid[el.x][el.y]) {
         aliveCount++;
+        if (aliveCount > 3) {
+          return aliveCount;
+        }
       }
     });
     return aliveCount;
@@ -172,16 +177,20 @@ class Board extends Component {
   render() {
     const boardStyle = css({
       position: 'relative',
-      width: '420px',
-      height: '200px',
-      margin: '0 auto',
-      border: '1px solid green',
-      fontFamily: 'Roboto'
+      display: 'block',
+      margin: '15px auto',
+      padding: '10px',
+      fontFamily: 'Roboto',
+      background: '#476752',
+      boxShadow: ` 
+      0 0 2px 2px rgb(180, 255, 193), 0 0 0 6px rgba(46, 76, 78, 0.9), 0 0 0 8px rgba(255, 255, 255, 1)
+
+    `
     });
 
-    const columnStyle = css({
+    const rowStyle = css({
       display: 'block',
-      height: '17px'
+      height: '12px'
     });
 
     const deadModalStyle = css({
@@ -206,29 +215,33 @@ class Board extends Component {
     });
 
     return (
-      <div {...boardStyle}>
+      <div>
         Generation: {this.state.generation}
-        {_.range(this.props.height).map((row, i) => (
-          <div key={i} {...columnStyle}>
-            {_.range(this.props.width).map((col, j) => (
-              <Cell
-                key={`${i}${j}`}
-                //    ref={cell => (this[`cell_${i + 1}_${j + 1}`] = cell)}
-                alive={this.state.cellsGrid[i] ? this.state.cellsGrid[i][j] : false}
-                onClick={() => this.handleCellClick(i, j)}
-              />
-            ))}
-          </div>
-        ))}
+        <div {...boardStyle}>
+          {this.state.cellsGrid.length > 0
+            ? _.range(this.props.height).map((row, i) => (
+                <div key={i} {...rowStyle}>
+                  {_.range(this.props.width).map((col, j) => (
+                    <Cell
+                      key={`${i}${j}`}
+                      //    ref={cell => (this[`cell_${i + 1}_${j + 1}`] = cell)}
+                      alive={this.state.cellsGrid[i] ? this.state.cellsGrid[i][j] : false}
+                      onClick={() => this.handleCellClick(i, j)}
+                    />
+                  ))}
+                </div>
+              ))
+            : null}
+        </div>
         {this.state.showDeadModal ? (
-            <div {...deadModalStyle}>
-              <p>
-                Everyone died after {this.state.generation} generation{this.state.generation > 1 ? 's' : null}.
-              </p>
-              <button {...deadModalBtn} onClick={this.handleModalClick}>
-                OK
-              </button>
-            </div>
+          <div {...deadModalStyle}>
+            <p>
+              Everyone died after {this.state.generation} generation{this.state.generation > 1 ? 's' : null}.
+            </p>
+            <button {...deadModalBtn} onClick={this.handleModalClick}>
+              OK
+            </button>
+          </div>
         ) : null}
       </div>
     );

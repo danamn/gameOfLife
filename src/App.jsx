@@ -9,8 +9,8 @@ class App extends Component {
   constructor() {
     super();
     this.state = {
-      width: 10,
-      height: 5,
+      width: 35,
+      height: 35,
       speed: 0,
       isOn: false
     };
