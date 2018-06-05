@@ -17,11 +17,13 @@ class App extends Component {
   }
 
   handleHeightChange = e => {
-    this.setState({ height: Math.floor(e.target.value) });
+    const height = e.target.value < 50? Math.floor(e.target.value): 50;
+    this.setState({ height: height });
   };
 
   handleWidthChange = e => {
-    this.setState({ width: Math.floor(e.target.value) });
+    const width = e.target.value < 100? Math.floor(e.target.value): 100;
+    this.setState({ width: width });
   };
 
   setSpeed = speed => {

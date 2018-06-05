@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { css } from 'glamor';
 import _ from 'lodash';
 import Cell from './Cell/Cell.jsx';
+import styles from'./glamor';
 
 class Board extends Component {
   constructor(props) {
@@ -163,68 +163,16 @@ class Board extends Component {
   };
 
   render() {
-    const boardStyle = css({
-      position: 'relative',
-      display: 'table',
-      margin: '50px auto 10px',
-      textAlign: 'center',
-      padding: '3px 20px 20px',
-      background: '#356155',
-      boxShadow: ` 
-      0 0 2px 2px rgb(180, 255, 193), 0 0 0 6px rgba(46, 76, 78, 0.9), 0 0 0 8px rgba(255, 255, 255, 1)
-    `
-    });
-    const generationStyle = css({
-      fontFamily: 'Architects Daughter, sans-serif',
-      fontSize: '20px',
-      display: 'block',
-      letterSpacing: '0.9px',
-      color: '#fff',
-      paddingTop: '5px',
-      paddingBottom: '5px',
-      '& span': {
-        minWidth: '40px',
-        display: 'inline-block',
-        textAlign: 'left'
-      }
-    });
-
-    const rowStyle = css({
-      //  display: 'table-row',
-      display: 'block',
-      height: '12px'
-    });
-
-    const deadModalStyle = css({
-      position: 'absolute',
-      top: '25%',
-      left: '25%',
-      width: '50%',
-      height: '50%',
-      background: '#fff',
-      color: 'darkblue',
-      fontFamily: 'Roboto',
-      fontSize: '15px',
-      border: '2px solid lightblue',
-      borderRadius: '3px',
-      zIndex: 101
-    });
-
-    const deadModalBtn = css({
-      padding: '0.5em 1em',
-      border: '2px solid lightblue',
-      borderRadius: '3px'
-    });
 
     return (
-      <div>
-        <div {...boardStyle}>
-          <div {...generationStyle}>
+      <div style={{overflow: 'hidden'}}>
+        <div {...styles.board}>
+          <div {...styles.generation}>
             Generations: <span> {this.state.generation}</span>
           </div>
           {this.state.cellsGrid.length > 0
             ? _.range(this.props.height).map((row, i) => (
-                <div key={i} {...rowStyle}>
+                <div key={i} {...styles.row}>
                   {_.range(this.props.width).map((col, j) => (
                     <Cell
                       key={`${i}${j}`}
@@ -238,11 +186,11 @@ class Board extends Component {
             : null}
         </div>
         {this.state.showDeadModal ? (
-          <div {...deadModalStyle}>
+          <div {...styles.deadModal}>
             <p>
               Everyone died after {this.state.generation} generation{this.state.generation > 1 ? 's' : null}.
             </p>
-            <button {...deadModalBtn} onClick={this.handleModalClick}>
+            <button {...styles.deadModalBtn} onClick={this.handleModalClick}>
               OK
             </button>
           </div>
