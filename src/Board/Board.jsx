@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
 import Cell from './Cell/Cell.jsx';
-import styles from'./glamor';
+import styles from './glamor';
 
 class Board extends Component {
   constructor(props) {
@@ -9,9 +9,34 @@ class Board extends Component {
     this.state = {
       generation: 0,
       cellsGrid: [],
-      showDeadModal: false
+      speed: 600
     };
   }
+
+  static getDerivedStateFromProps(nextProps, prevState) {
+    let newSpeed;
+    switch (nextProps.speed) {
+      case 0:
+        newSpeed = 1000;
+        break;
+      case 1:
+        newSpeed = 600;
+        break;
+      case 2:
+        newSpeed = 100;
+        break;
+      default:
+        newSpeed = 600;
+    }
+
+    if (newSpeed !== prevState.speed) {
+      console.log('fn', newSpeed);
+
+      return { speed: newSpeed };
+    }
+    return null;
+  }
+
 
   componentDidMount() {
     this.makeNewGrid(true);
@@ -29,14 +54,14 @@ class Board extends Component {
     if (prevProps.speed !== this.props.speed) {
       clearTimeout(this.growthTimeout);
       if (this.props.isOn) {
-        this.startEvolving();
+        this.evolveCells();
       }
     }
 
     if (this.props.isOn !== prevProps.isOn) {
       if (this.props.isOn) {
         this.setState({ showDeadModal: false });
-        this.startEvolving();
+        this.evolveCells();
       } else {
         clearTimeout(this.growthTimeout);
       }
@@ -49,62 +74,42 @@ class Board extends Component {
       showDeadModal: false
     });
     clearTimeout(this.growthTimeout);
-    const cellsGrid = this.createGrid(isRandom, false);
+    const cellsGrid = this.createGrid(isRandom, false).grid;
     this.setState({ cellsGrid: cellsGrid });
   };
 
   createGrid = (isRandom, isOn) => {
     const { width, height } = this.props;
+    let boardIsEmpty = true;
     let cellsGrid = [];
     _.forEach(_.range(height), (row, i) => {
       let gridRow = [];
       _.forEach(_.range(width), (cell, j) => {
         gridRow[j] = isRandom ? this.randomAlive() : isOn ? this.calculateIfCellAlive(i, j) : false;
+        if (isOn && this.calculateIfCellAlive(i, j)) {
+          boardIsEmpty = false;
+        }
       });
       cellsGrid.push(gridRow);
     });
 
-    return cellsGrid;
+    return { grid: cellsGrid, isEmpty: boardIsEmpty };
   };
 
   randomAlive() {
     return Math.random() >= 0.5;
   }
 
-  startEvolving = () => {
-    const getSpeed = () => {
-      switch (this.props.speed) {
-        case 0:
-          return 1200;
-        case 1:
-          return 800;
-        case 2:
-          return 300;
-        default:
-          return 1000;
-      }
-    };
-
-    clearTimeout(this.growthTimeout);
-    this.evolveCells();
-  };
-
   evolveCells = () => {
     clearTimeout(this.growthTimeout);
-    let boardIsEmpty = true;
 
     let cellsGrid = this.createGrid(false, true);
+    this.setState({ cellsGrid: cellsGrid.grid, generation: this.state.generation + 1 });
 
-    this.setState({ cellsGrid: cellsGrid, generation: this.state.generation + 1 });
-    this.growthTimeout = setTimeout(this.evolveCells, 10);
+    if (!cellsGrid.isEmpty) {
+      this.growthTimeout = setTimeout(this.evolveCells, this.state.speed);
+    }
 
-    // this.setState({ cellsGrid: cellsGrid, generation: this.state.generation + 1 }, () => {
-    //   this.growthTimeout = setTimeout(this.evolveCells, 10);
-    // });
-
-    // if (boardIsEmpty) {
-    //   this.stopEvolution();
-    // }
   };
 
   calculateIfCellAlive = (i, j) => {
@@ -151,21 +156,14 @@ class Board extends Component {
     this.setState({ cellsGrid: cellsGrid });
   };
 
-  stopEvolution = () => {
-    clearInterval(this.growthInterval);
-    this.setState({ showDeadModal: true });
-    this.props.toggleOverlay();
-  };
-
   handleModalClick = () => {
     this.setState({ showDeadModal: false, generation: 0 });
     this.props.toggleOverlay();
   };
 
   render() {
-
     return (
-      <div style={{overflow: 'hidden'}}>
+      <div style={{ overflow: 'hidden' }}>
         <div {...styles.board}>
           <div {...styles.generation}>
             Generations: <span> {this.state.generation}</span>

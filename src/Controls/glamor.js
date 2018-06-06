@@ -3,14 +3,19 @@ import { css } from 'glamor';
 export default {
   controlsWrapper: css({
     position: 'relative',
-    minWidth: '250px',
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'nowrap',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    minWidth: '550px',
     width: '30%',
-    height: '2.7em',
+    height: '3.5em',
     margin: '20px auto',
     fontFamily: 'Architects Daughter, sans-serif',
     fontWeight: 'bold',
     textAlign: 'center',
-    padding: '3px 20px 20px',
+    // padding: '3px 20px 20px',
     background: '#356155',
     boxShadow: ` 
         0 0 2px 2px rgb(180, 255, 193), 0 0 0 4px rgba(46, 76, 78, 0.9), 0 0 0 5px rgba(255, 255, 255, 1)
@@ -22,12 +27,16 @@ export default {
   }),
 
   title: css({
-      margin: '3px 50px 3px 10px',
+      margin: '3px 10px',
       letterSpacing: '1px',
       display: 'inline-block'
   }),
 
-  lable: css({
+  commandsWrapper: css({
+      flexBasis: '80%'
+  }),
+
+  label: css({
     fontSize: '1.3em',
     letterSpacing: '0.9px',
     paddingRight: '5px',
