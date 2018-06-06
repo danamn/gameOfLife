@@ -11,7 +11,7 @@ class App extends Component {
     this.state = {
       width: 35,
       height: 35,
-      speed: 0,
+      speed: 1,
       isOn: false
     };
   }
