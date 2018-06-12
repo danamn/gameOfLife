@@ -11,7 +11,7 @@ export default {
     minWidth: '550px',
     width: '30%',
     height: '3.5em',
-    margin: '20px auto',
+    margin: '20px auto 0',
     fontFamily: 'Architects Daughter, sans-serif',
     fontWeight: 'bold',
     textAlign: 'center',

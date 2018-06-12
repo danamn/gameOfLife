@@ -4,7 +4,7 @@ export default {
   board: css({
     position: 'relative',
     display: 'table',
-    margin: '50px auto 10px',
+    margin: '10px auto',
     textAlign: 'center',
     padding: '3px 20px 20px',
     background: '#356155',
@@ -13,7 +13,7 @@ export default {
   `
   }),
   generation: css({
-    fontFamily: 'Architects Daughter, sans-serif',
+ //   fontFamily: 'Architects Daughter, sans-serif',
     fontSize: '1.5em',
     display: 'block',
     letterSpacing: '0.9px',

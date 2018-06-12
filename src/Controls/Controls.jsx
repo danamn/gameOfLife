@@ -2,7 +2,7 @@ import React from 'react';
 
 import styles from './glamor';
 
-const controlls = props => {
+const controls = props => {
   return (
     <div>
       <div {...styles.controlsWrapper}>
@@ -46,13 +46,13 @@ const controlls = props => {
       <div {...styles.controlsWrapper}>
         <h2 {...styles.title}> Speed </h2>
         <div {...styles.commandsWrapper}>
-          <button {...styles.button} type="button" onClick={() => props.onSpeedChange(0)}>
+          <button {...styles.button} style={props.speed === 'slow'? {background: '#fff'}: null} type="button"  onClick={() => props.onSpeedChange('slow')}>
             Slow
           </button>
-          <button {...styles.button} type="button" onClick={() => props.onSpeedChange(1)}>
+          <button {...styles.button} style={props.speed === 'medium'? {background: '#fff'}: null} type="button" onClick={() => props.onSpeedChange('medium')}>
             Medium
           </button>
-          <button {...styles.button} type="button" onClick={() => props.onSpeedChange(2)}>
+          <button {...styles.button}  style={props.speed === 'fast'? {background: '#fff'}: null} type="button" onClick={() => props.onSpeedChange('fast')}>
             Fast
           </button>
         </div>
@@ -61,4 +61,4 @@ const controlls = props => {
   );
 };
 
-export default controlls;
+export default controls;

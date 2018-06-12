@@ -3,15 +3,13 @@ import Board from './Board/Board.jsx';
 import Controls from './Controls/Controls.jsx';
 import { css } from 'glamor';
 
-import './App.css';
-
 class App extends Component {
   constructor() {
     super();
     this.state = {
-      width: 35,
+      width: 50,
       height: 35,
-      speed: 1,
+      speed: 'medium',
       isOn: false
     };
   }
@@ -46,40 +44,38 @@ class App extends Component {
     this.setState({ isOn: false });
   };
 
-  toggleOverlay = () => {
-    this.setState(prevState => {
-      return {showOverlay: !prevState.showOverlay}
-    }, ()=> {
-      if(this.state.showOverlay) this.toggleApp();
-    })
-  }
-
   render() {
-    const overlayStyle = css({
-      position:'absolute',
-      top: 0,
-      left: 0,
-      width: '100%',
-      height: '100%',
-      background: 'rgba(0, 0, 0, .2)',
-      zIndex: 99
+    const boardStyle = css({
+      position: 'relative',
+      display: 'table',
+      minWidth: '30%',
+      margin: '15px auto 20px',
+      textAlign: 'center',
+      padding: '3px 20px',
+      background: '#356155',
+      color: '#fff',
+      fontSize: '1.5em',
+      boxShadow: ` 
+      0 0 2px 2px rgb(180, 255, 193), 0 0 0 6px rgba(46, 76, 78, 0.9), 0 0 0 8px rgba(255, 255, 255, 1)
+    `
     })
 
     return (
       <div className="App">
 
+        <div {...boardStyle}>  Conway's Game Of Life - React JS </div>
         <Board
           ref={board => (this.board = board)}
           width={this.state.width}
           height={this.state.height}
           speed={this.state.speed}
           isOn={this.state.isOn}
-          toggleOverlay={this.toggleOverlay}
         />
         <Controls
           isOn={this.state.isOn}
           width={this.state.width}
           height={this.state.height}
+          speed={this.state.speed}
           onWidthChange={this.handleWidthChange}
           onHeightChange={this.handleHeightChange}
           onSpeedChange={speed => this.setSpeed(speed)}
@@ -87,7 +83,6 @@ class App extends Component {
           onSetRandom={this.setRandomGrid}
           onClear={this.clearBoard}
         />
-          {this.state.showOverlay &&  <div {...overlayStyle}></div>}
       </div>
     );
   }

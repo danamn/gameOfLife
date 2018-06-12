@@ -16,13 +16,13 @@ class Board extends Component {
   static getDerivedStateFromProps(nextProps, prevState) {
     let newSpeed;
     switch (nextProps.speed) {
-      case 0:
+      case 'slow':
         newSpeed = 1000;
         break;
-      case 1:
+      case 'medium':
         newSpeed = 600;
         break;
-      case 2:
+      case 'fast':
         newSpeed = 100;
         break;
       default:

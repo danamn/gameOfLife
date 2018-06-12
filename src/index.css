@@ -1,5 +1,19 @@
-body {
+body, html {
   margin: 0;
   padding: 0;
   font-family: sans-serif;
+  display: block;
+  height: 100%;
+  font-family: 'Architects Daughter', sans-serif;
+}
+
+#root {
+  display: block;
+  background-attachment: fixed;
+  background-image: url('https://c.pxhere.com/photos/c7/67/green_texture_grass_pattern_background_publicdomain-335508.jpg!d');
+  background-size: cover;
+  background-repeat: no-repeat;
+  text-align: center;
+  overflow: auto;
+  height: 100%;
 }
